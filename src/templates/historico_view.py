@@ -30,7 +30,7 @@ def get_historico_view(id_usuario):
             ft.DataColumn(ft.Text("Tipo")),
             ft.DataColumn(ft.Text("Valor/Litro")),
             ft.DataColumn(ft.Text("Valor Abastecido")),
-            ft.DataColumn(ft.Text("Km")),
+            
         ]
         tabela.visible = True
         filtro_tipo.visible = False
@@ -43,11 +43,11 @@ def get_historico_view(id_usuario):
                     ft.DataRow(
                         cells=[
                             ft.DataCell(ft.Text(a.data_abastecimento.strftime("%d/%m/%Y %H:%M") if a.data_abastecimento else "")),
-                            ft.DataCell(ft.Text(f"{v.modelo} - {v.placa}")),
+                            ft.DataCell(ft.Text(f"{v.modelo}")),
                             ft.DataCell(ft.Text(a.tipo_combustivel)),
                             ft.DataCell(ft.Text(f"R$ {a.valor_litro:,.2f}".replace(".", "X").replace(",", ".").replace("X", ","))),
                             ft.DataCell(ft.Text(f"R$ {a.valor_abastecido:,.2f}".replace(".", "X").replace(",", ".").replace("X", ","))),
-                            ft.DataCell(ft.Text(str(a.kilometragem_atual))),
+                            
                         ]
                     )
                 )
@@ -99,7 +99,7 @@ def get_historico_view(id_usuario):
             ft.DataColumn(ft.Text("Tipo")),
             ft.DataColumn(ft.Text("Valor/Litro")),
             ft.DataColumn(ft.Text("Valor Abastecido")),
-            ft.DataColumn(ft.Text("Km")),
+         
         ]
         linhas = []
         for v in veiculos_usuario:
@@ -110,11 +110,11 @@ def get_historico_view(id_usuario):
                         ft.DataRow(
                             cells=[
                                 ft.DataCell(ft.Text(a.data_abastecimento.strftime("%d/%m/%Y %H:%M") if a.data_abastecimento else "")),
-                                ft.DataCell(ft.Text(f"{v.modelo} - {v.placa}")),
+                                ft.DataCell(ft.Text(f"{v.modelo}")),
                                 ft.DataCell(ft.Text(a.tipo_combustivel)),
                                 ft.DataCell(ft.Text(f"R$ {a.valor_litro:,.2f}".replace(".", "X").replace(",", ".").replace("X", ","))),
                                 ft.DataCell(ft.Text(f"R$ {a.valor_abastecido:,.2f}".replace(".", "X").replace(",", ".").replace("X", ","))),
-                                ft.DataCell(ft.Text(str(a.kilometragem_atual))),
+                                
                             ]
                         )
                     )
@@ -123,73 +123,71 @@ def get_historico_view(id_usuario):
 
     filtro_tipo.on_change = filtrar_por_tipo
 
-    card_historico = ft.Card(
-        content=ft.Container(
-            ft.Column([
-                ft.Icon(ft.Icons.HISTORY, size=40, color=ft.Colors.BLUE),
-                ft.Text("Histórico", size=18, weight="bold")
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            on_click=mostrar_historico,
-            padding=10,
+    # substituindo cards por IconButtons
+    botao_historico = ft.IconButton(
+        icon=ft.Icons.HISTORY,
+        icon_size=40,
+        tooltip="Histórico",
+        on_click=mostrar_historico,
+        style=ft.ButtonStyle(
             bgcolor=ft.Colors.BLUE_100,
-            border_radius=8,
-            alignment=ft.alignment.center,
-            width=120,   # largura fixa
-            height=120   # altura fixa
+            shape=ft.RoundedRectangleBorder(radius=8),
         ),
-        animate_scale=5,
-        visible=True,
-        margin=ft.margin.all(10)
     )
 
-    card_valor = ft.Card(
-        content=ft.Container(
-            ft.Column([
-                ft.Icon(ft.Icons.ATTACH_MONEY, size=40, color=ft.Colors.GREEN),
-                ft.Text("Valor", size=18, weight="bold")
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            on_click=mostrar_valor,
-            padding=10,
+    botao_valor = ft.IconButton(
+        icon=ft.Icons.ATTACH_MONEY,
+        icon_size=40,
+        tooltip="Valor",
+        on_click=mostrar_valor,
+        style=ft.ButtonStyle(
             bgcolor=ft.Colors.GREEN_100,
-            border_radius=8,
-            alignment=ft.alignment.center,
-            width=120,   # largura fixa
-            height=120   # altura fixa
+            shape=ft.RoundedRectangleBorder(radius=8),
         ),
-        animate_scale=5,
-        visible=True,
-        margin=ft.margin.all(10)
     )
 
-    card_tipo = ft.Card(
-        content=ft.Container(
-            ft.Column([
-                ft.Icon(ft.Icons.LOCAL_GAS_STATION, size=40, color=ft.Colors.ORANGE),
-                ft.Text("Tipo", size=18, weight="bold")
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            on_click=mostrar_tipo,
-            padding=10,
+    botao_tipo = ft.IconButton(
+        icon=ft.Icons.LOCAL_GAS_STATION,
+        icon_size=40,
+        tooltip="Tipo",
+        on_click=mostrar_tipo,
+        style=ft.ButtonStyle(
             bgcolor=ft.Colors.ORANGE_100,
-            border_radius=8,
-            alignment=ft.alignment.center,
-            width=120,   # largura fixa
-            height=120   # altura fixa
+            shape=ft.RoundedRectangleBorder(radius=8),
         ),
-        animate_scale=5,
-        visible=True,
-        margin=ft.margin.all(10)
     )
-    return ft.Column(
-        [
-            ft.ResponsiveRow(
-                controls=[
-                    ft.Container(card_historico,col={"xs":12, "md":6}), 
-                    ft.Container(card_valor, col={"xs":12, "md":6}), 
-                    ft.Container(card_tipo, col={"xs":12, "md":6})], alignment=ft.MainAxisAlignment.CENTER),
-            filtro_tipo,
-            tabela,
-            mensagem
-        ],
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        expand=True
+
+
+    # mesma lógica do seu código
+    return ft.Container(
+        content=ft.Column(
+            controls=[
+                ft.Row(
+                    controls=[botao_historico, botao_tipo, botao_valor],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                ft.Divider(),
+                ft.Column(
+                    controls=[
+                        ft.Container(
+                            content=filtro_tipo,
+                            alignment=ft.alignment.center,
+                            expand=False,
+                        ),
+                        ft.Container(
+                            content=tabela,
+                            alignment=ft.alignment.center,
+                            expand=False,
+                        ),
+                        
+                        mensagem,
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    scroll=ft.ScrollMode.AUTO,
+                ),
+            ]
+        ),
+        expand=True,
+        padding=10,
+        margin=ft.margin.only(top=20)
     )

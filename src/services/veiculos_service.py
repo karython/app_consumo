@@ -71,15 +71,17 @@ def buscar_veiculo_por_id(veiculo_id):
     finally:
         session.close()
 
-def atualizar_veiculo(veiculo_id, **kwargs):
+def atualizar_veiculo(veiculo_id, modelo, fabricante, placa):
     session = SessionLocal()
     try:
         veiculo = session.query(Veiculo).filter(Veiculo.id == veiculo_id).first()
         if not veiculo:
             return None
-        for key, value in kwargs.items():
-            if hasattr(veiculo, key):
-                setattr(veiculo, key, value)
+        
+        veiculo.modelo = modelo
+        veiculo.fabricante = fabricante
+        veiculo.placa = placa
+
         session.commit()
         session.refresh(veiculo)
         return veiculo

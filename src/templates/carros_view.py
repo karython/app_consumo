@@ -1,11 +1,12 @@
 import flet as ft
 import datetime
-from services.veiculos_service import criar_veiculo, listar_veiculos, deletar_veiculo
+from services.veiculos_service import criar_veiculo, listar_veiculos, deletar_veiculo, buscar_veiculo_por_id, atualizar_veiculo
 
 def get_veiculo_view(id_usuario):
     # controle de formulário
     form_cadastro = ft.Column(visible=False, scroll=ft.ScrollMode.AUTO, expand=True)
     container_veiculos = ft.Column(visible=False, scroll=ft.ScrollMode.AUTO)
+    form_edicao = ft.Column(visible=False)
 
     # cores
     bg_padrao = ft.Colors.BLUE_100
@@ -38,7 +39,6 @@ def get_veiculo_view(id_usuario):
             ],
             expand=True
         )
-        cap_total_tanque = ft.TextField(label="Cap. Tanque (L)", value="45")
 
         def incrementar(e):
             cap_total_tanque.value = str(int(cap_total_tanque.value) + 1)
@@ -48,6 +48,23 @@ def get_veiculo_view(id_usuario):
             if int(cap_total_tanque.value) > 0:
                 cap_total_tanque.value = str(int(cap_total_tanque.value) - 1)
                 form_cadastro.update()
+
+        botao_menos = ft.IconButton(
+            icon=ft.Icons.REMOVE, 
+            on_click=decrementar
+        )
+
+        botao_mais = ft.IconButton(
+            icon=ft.Icons.ADD, 
+            on_click=incrementar
+)
+        cap_total_tanque = ft.TextField(
+            label="Cap. Tanque (L)", 
+            value="45", 
+            prefix_icon=botao_menos, 
+            suffix_icon=botao_mais)
+
+
 
         return modelo, tipo_veiculo, ano_fabricacao, fabricante, kilometragem, placa, tipo_combustivel, cap_total_tanque, incrementar, decrementar
 
@@ -104,6 +121,7 @@ def get_veiculo_view(id_usuario):
                                 ft.Container(placa, col=6, padding=5),
                             ]
                         ),
+                       
 
                         ft.ResponsiveRow(
                             controls=[
@@ -113,12 +131,11 @@ def get_veiculo_view(id_usuario):
 
                         ft.Row(
                             controls=[
-                                ft.IconButton(icon=ft.Icons.REMOVE, on_click=decrementar),
+                                
                                 ft.Container(cap_total_tanque, width=120),  # controla a largura
-                                ft.IconButton(icon=ft.Icons.ADD, on_click=incrementar),
                                 ft.IconButton(icon=ft.Icons.CHECK, bgcolor=ft.Colors.BLUE_100, on_click=cadastrar_veiculo)
-                            ],
-                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                            ], alignment=ft.MainAxisAlignment.END
+                            
                         )
                     ],
                     spacing=10
@@ -201,11 +218,98 @@ def get_veiculo_view(id_usuario):
             mensagem_feedback.value = "Erro ao deletar veículo."
             mensagem_feedback.color = ft.Colors.RED
             mensagem_feedback.update()
-
+        
+        
     def on_editar(veiculo_id):
-        mensagem_feedback.value = f"Função de edição para {veiculo_id} ainda não implementada."
+        # buscar o veículo pelo id
+        veiculo = buscar_veiculo_por_id(veiculo_id)
+
+        if not veiculo:
+            mensagem_feedback.value = f"Veículo {veiculo_id} não encontrado!"
+            mensagem_feedback.color = ft.Colors.RED
+            mensagem_feedback.update()
+            return
+        
+        # cria campos de edição preenchidos com valores do banco
+        modelo_input = ft.TextField(label="Modelo", value=veiculo.modelo)
+        placa_input = ft.TextField(label="Placa", value=veiculo.placa)
+        fabricante_input = ft.TextField(label="Fabricante", value=veiculo.fabricante)
+        
+        def editar_veiculo(e):
+            atualizar_veiculo(
+                veiculo.id,
+                modelo_input.value,
+                fabricante_input.value,
+                placa_input.value
+            )
+
+            # ao salvar, fecha form edicao e reabre a lista
+            form_edicao.visible = False
+            form_edicao.controls.clear()
+            form_edicao.update()
+            lista_veiculos.visible = True
+            lista_veiculos.update()
+            atualizar_lista_veiculos()
+        
+        def fechar_edicao(e):
+            # ao cancelar, volta a exibir a lista de veículos
+            form_edicao.controls.clear()
+            form_edicao.visible = False
+            form_edicao.update()
+            lista_veiculos.visible = True
+            lista_veiculos.update()
+
+        # monta o formulário de edição
+        form_edicao.controls = [
+            ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Text("Edição de Veículo", size=22, weight=ft.FontWeight.BOLD),
+                        ft.ResponsiveRow(
+                            controls=[
+                                ft.Container(modelo_input, col=6, padding=5),
+                                ft.Container(placa_input, col=6, padding=5),
+                            ]
+                        ),
+                        ft.ResponsiveRow(
+                            controls=[
+                                ft.Container(fabricante_input, padding=5),
+                            ]
+                        ),
+                        ft.Row(
+                            controls=[
+                                ft.IconButton(
+                                    icon=ft.Icons.CHECK,
+                                    bgcolor=ft.Colors.GREEN_300,
+                                    on_click=editar_veiculo
+                                ),
+                                ft.IconButton(
+                                    icon=ft.Icons.CLOSE,
+                                    bgcolor=ft.Colors.RED_300,
+                                    on_click=fechar_edicao
+                                )
+                            ],
+                            alignment=ft.MainAxisAlignment.END
+                        )
+                    ],
+                    spacing=10
+                ),
+                padding=20,
+                border_radius=10,
+                bgcolor=ft.Colors.GREY_100,
+                margin=ft.Margin(left=10, top=10, right=10, bottom=10)
+            )
+        ]
+        form_edicao.visible = True
+        form_edicao.update()
+        lista_veiculos.visible = False
+        lista_veiculos.update()
+
+
+
+        '''mensagem_feedback.value = f"Função de edição para {veiculo_id} ainda não implementada."
         mensagem_feedback.color = ft.Colors.ORANGE
-        mensagem_feedback.update()
+        mensagem_feedback.update()'''
 
     container_veiculos.controls = [
         mensagem_feedback,
@@ -268,6 +372,7 @@ def get_veiculo_view(id_usuario):
                         spacing=5
                     ),
                     form_cadastro,
+                    form_edicao,
 
                         ft.Row(
                             [container_veiculos],

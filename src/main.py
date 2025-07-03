@@ -12,31 +12,33 @@ from models.usuario import Usuario
 from models.veiculos import Veiculo
 from models.historico import Historico
 from models.troca_oleo import TrocaOleo
- 
+
 def main(page: ft.Page):
     page.title = "Controle de Gastos Automotivo"
+    
     page.window.always_on_top = True  
     page.window.width = 500
     page.window.height = 600
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.LIGHT   
     page.scroll = ft.ScrollMode.AUTO
-               
+    
+            
     
     login_feedback = ft.Text("", color=ft.Colors.RED, size=14)
     conteudo = ft.Column(expand=True)
     usuario_logado = {"id": None}
     # FIXME apenas modo desenvolvimento     
     usuario_logado["id"]=1   
-
+ 
 
     def atualizar_layout(): 
         page.controls.clear()
         if usuario_logado["id"]:
-            page.add(
-                navbar,
-                ft.Column(
-                    controls=[ 
-                        conteudo,  
+            page.add( 
+                navbar,  
+                ft.Row(  
+                    controls=[
+                        conteudo, 
                         ft.Row(
                             controls=[ ],
                             alignment="end"),
@@ -45,7 +47,7 @@ def main(page: ft.Page):
                 )
             )         
         else:
-            page.add(conteudo) 
+            page.add(conteudo)   
         page.update()
 
     def mostrar_perfil(usuario_id):
@@ -88,11 +90,11 @@ def main(page: ft.Page):
      
       
     def mudar_tela(e):  
-        if usuario_logado["id"]:
+        if usuario_logado["id"]:  
             conteudo.controls.clear()  
             match e.control.selected_index: 
                 case 0:
-                    conteudo.controls.append(get_abastecimento_view(usuario_logado["id"]))
+                    conteudo.controls.append(get_abastecimento_view(usuario_logado["id"]))     
                 case 1:
                     conteudo.controls.append(get_historico_view(usuario_logado["id" ]))
                 case 2:
@@ -114,20 +116,20 @@ def main(page: ft.Page):
             ft.NavigationBarDestination(icon=ft.Icons.PERSON, label="Perfil"),
         ],
         selected_index=3,
-        on_change=mudar_tela  
-    )       
-    
+        on_change=mudar_tela        
+    )                 
+     
     '''abastecer = ft.IconButton(   
         icon=ft.Icons.LOCAL_GAS_STATION,  
-        style=ft.ButtonStyle(
+        style=ft.ButtonStyle(  
             shape=ft.RoundedRectangleBorder(radius=50),
-            padding=10,   
-            icon_size=40,    
+            padding=10,          
+            icon_size=40,            
             bgcolor=ft.Colors.CYAN_50    
         ), 
-    )'''  
+    )''' 
 
     #FIXME modo desenvolvimento mostra perfil e define id
     #mostrar_login()
     mostrar_perfil(usuario_logado["id"])
-ft.app(main)      
+ft.app(target=main, view=ft.WEB_BROWSER, assets_dir="assets")      

@@ -88,6 +88,13 @@ def get_abastecimento_view(id_usuario):
             kilometragem_atual.value = ""
             tipo_combustivel.value = None
             dropdown_veiculo.value = None
+
+            valor_litro.update()
+            valor_abastecido.update()
+            kilometragem_atual.update()
+            tipo_combustivel.update()
+            dropdown_veiculo.update()
+
         except Exception as ex:
             mensagem.value = f"Erro ao registrar: {ex}"
             mensagem.color = ft.Colors.RED
